@@ -90,11 +90,11 @@ const SideBar = () => {
         <li>
           <a onClick={() => setModalOpen(true)}>
             <MdOutlineVpnKey size={15} />
-            <p className={`${!open && 'hidden'}`}>OpenAI Key</p>
+            <p className={`${!open && 'hidden'}`}>AI Provider</p>
           </a>
         </li>
       </ul>
-      <Modal title='Setting' modalOpen={modalOpen} setModalOpen={setModalOpen}>
+      <Modal title='AI Provider' modalOpen={modalOpen} setModalOpen={setModalOpen}>
         <Setting modalOpen={modalOpen} setModalOpen={setModalOpen} />
       </Modal>
     </section>

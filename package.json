@@ -15,10 +15,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:githubPages": "vite build --base /chatgpt-pro/",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
+    "ai-pay": "^0.3.6",
+    "ai-pay-react-hooks": "^0.0.2",
     "langchain": "^0.0.155",
     "moment": "^2.29.4",
     "no-profanity": "^1.5.1",

@@ -7,6 +7,7 @@ import {
   MessagesPlaceholder,
 } from 'langchain/prompts';
 import { BufferMemory } from 'langchain/memory';
+import { AiPayClient } from 'ai-pay';
 
 const memory = new BufferMemory({
   returnMessages: true,
@@ -21,7 +22,17 @@ export const davinci = async (prompt, key, gptVersion) => {
     new MessagesPlaceholder('history'),
     HumanMessagePromptTemplate.fromTemplate('{input}'),
   ]);
-  const model = new ChatOpenAI({
+
+  const aiPaySessionId = AiPayClient.getInstance().getClientSessionId();
+
+  const model = new ChatOpenAI(aiPaySessionId ? {
+    openAIApiKey: aiPaySessionId,
+    model: gptVersion,
+    temperature: 0.3,
+    configuration: {
+      baseURL: 'https://api.joinaipay.com/api/openai-compatible'
+    }
+  } : {
     openAIApiKey: key,
     model: gptVersion,
     temperature: 0.3,
