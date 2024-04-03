@@ -43,6 +43,7 @@ const ChatView = () => {
   const [gpt, setGpt] = useState(gptModel[0]);
   const [messages, addMessage] = useContext(ChatContext);
   const [modalOpen, setModalOpen] = useState(false);
+  const [streamedResponse, setStreamedResponse] = useState(undefined);
 
   /**
    * Scrolls the chat area to the bottom.
@@ -99,8 +100,11 @@ const ChatView = () => {
     console.log(selected);
     try {
       if (aiModel === options[0]) {
-        const LLMresponse = await davinci(cleanPrompt, key, gptVersion);
-        //const data = response.data.choices[0].message.content;
+        const LLMresponse = await davinci(cleanPrompt, key, gptVersion, (streamedResponse) => {
+          setStreamedResponse(streamedResponse);
+        });
+        setStreamedResponse(undefined);
+
         LLMresponse && updateMessage(LLMresponse, true, aiModel);
       } else {
         const responseUrl = await dalle(cleanPrompt, key);
@@ -172,7 +176,14 @@ const ChatView = () => {
           </div>
         )}
 
-        {thinking && <Thinking />}
+        {thinking && !streamedResponse && <Thinking />}
+
+        {streamedResponse && <Message message={{ 
+            id: "stream",
+            text: streamedResponse,
+            ai: true,
+            selected: options[0],
+           }} />}
 
         <span ref={messagesEndRef}></span>
       </section>
