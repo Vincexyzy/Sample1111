@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { checkApiKey } from '../utils/checkKeys';
+import { useSessionData } from 'ai-pay-react-hooks';
 
 import PropTypes from 'prop-types';
 
@@ -8,6 +9,17 @@ const Setting = ({ modalOpen, setModalOpen }) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [input, setInput] = useState('');
+
+  const {
+    browserExtensionInstalled,
+    sessionState,
+  } = useSessionData();
+
+  useEffect(() => {
+    if (sessionState === "ACTIVE") {
+      setModalOpen(false);
+    }
+  }, [sessionState, setModalOpen])
 
   const saveKey = async (e) => {
     e.preventDefault();
@@ -44,7 +56,7 @@ const Setting = ({ modalOpen, setModalOpen }) => {
     <form
       onSubmit={saveKey}
       className='flex flex-col items-center justify-center gap-2'>
-      <p className='text-lg font-semibold'>Use your own API-key.</p>
+      <p className='text-lg font-semibold'>Use your OpenAI API key.</p>
       <p>keys are saved in your own browser</p>
       <p className='italic'>
         Get OpenAI API key{' '}
@@ -59,6 +71,7 @@ const Setting = ({ modalOpen, setModalOpen }) => {
       </p>
       <input
         value={input}
+        placeholder='sk-...'
         onChange={(e) => setInput(e.target.value)}
         type='password'
         className='w-full max-w-xs input input-bordered'
@@ -82,6 +95,26 @@ const Setting = ({ modalOpen, setModalOpen }) => {
         </span>
       )}
       <p>{errorMsg}</p>
+
+      <div className='flex w-full items-center gap-2 '>
+        <hr className='w-full opacity-50' />
+        <p>OR</p>
+        <hr className='w-full opacity-50' />
+      </div>
+
+      <p className='text-lg font-semibold'>Use AI Pay</p>
+      {sessionState === "ACTIVE" ? (
+        <p className='w-full max-w-xs text-center bg-neutral-500/20 rounded-md px-2 py-1'>AI Pay session is active. You can now use ChatGPT-Pro.</p>
+      ) : (
+      <a 
+        className='mx-auto w-full max-w-xs btn btn-outline'
+        href={browserExtensionInstalled ? 
+          'https://www.joinaipay.com/welcome'
+          : 'https://chromewebstore.google.com/detail/ai-pay/igghgdjfklipjmgldcdfnpppgaijmhfg'}
+        >
+          {browserExtensionInstalled ? 'Learn how to start a session' : 'Download AI Pay'}
+      </a>
+      )}
     </form>
   );
 };

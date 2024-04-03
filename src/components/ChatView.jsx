@@ -8,6 +8,7 @@ import { davinci } from '../utils/davinci';
 import { dalle } from '../utils/dalle';
 import Modal from './Modal';
 import Setting from './Setting';
+import { AiPayClient } from 'ai-pay';
 
 const options = ['ChatGPT', 'DALL·E'];
 const gptModel = ['gpt-3.5-turbo', 'gpt-4'];
@@ -42,6 +43,7 @@ const ChatView = () => {
   const [gpt, setGpt] = useState(gptModel[0]);
   const [messages, addMessage] = useContext(ChatContext);
   const [modalOpen, setModalOpen] = useState(false);
+  const [streamedResponse, setStreamedResponse] = useState(undefined);
 
   /**
    * Scrolls the chat area to the bottom.
@@ -78,7 +80,8 @@ const ChatView = () => {
     e.preventDefault();
 
     const key = window.localStorage.getItem('api-key');
-    if (!key) {
+    const sessionId = AiPayClient.getInstance().getClientSessionId();
+    if (!key && !sessionId) {
       setModalOpen(true);
       return;
     }
@@ -97,13 +100,15 @@ const ChatView = () => {
     console.log(selected);
     try {
       if (aiModel === options[0]) {
-        const LLMresponse = await davinci(cleanPrompt, key, gptVersion);
-        //const data = response.data.choices[0].message.content;
+        const LLMresponse = await davinci(cleanPrompt, key, gptVersion, (streamedResponse) => {
+          setStreamedResponse(streamedResponse);
+        });
+        setStreamedResponse(undefined);
+
         LLMresponse && updateMessage(LLMresponse, true, aiModel);
       } else {
-        const response = await dalle(cleanPrompt, key);
-        const data = response.data.data[0].url;
-        data && updateMessage(data, true, aiModel);
+        const responseUrl = await dalle(cleanPrompt, key);
+        responseUrl && updateMessage(responseUrl, true, aiModel);
       }
     } catch (err) {
       window.alert(`Error: ${err} please try again later`);
@@ -171,7 +176,14 @@ const ChatView = () => {
           </div>
         )}
 
-        {thinking && <Thinking />}
+        {thinking && !streamedResponse && <Thinking />}
+
+        {streamedResponse && <Message message={{ 
+            id: "stream",
+            text: streamedResponse,
+            ai: true,
+            selected: options[0],
+           }} />}
 
         <span ref={messagesEndRef}></span>
       </section>
@@ -198,7 +210,7 @@ const ChatView = () => {
           </button>
         </div>
       </form>
-      <Modal title='Setting' modalOpen={modalOpen} setModalOpen={setModalOpen}>
+      <Modal title='AI Provider' modalOpen={modalOpen} setModalOpen={setModalOpen}>
         <Setting modalOpen={modalOpen} setModalOpen={setModalOpen} />
       </Modal>
     </main>
