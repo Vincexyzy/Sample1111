@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 const Setting = ({ modalOpen, setModalOpen }) => {
   const apiKey = window.localStorage.getItem('api-key') || '';
+  const genApiKey = window.localStorage.getItem("gen-api-key");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [input, setInput] = useState('');

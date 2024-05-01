@@ -1,4 +1,4 @@
-import { Configuration, OpenAIApi } from 'openai';
+import { Configuration, OpenAIApi } from "openai";
 
 export const dalle = async (prompt, key) => {
   const configuration = new Configuration({
@@ -9,7 +9,7 @@ export const dalle = async (prompt, key) => {
   const response = await openai.createImage({
     prompt: `${prompt}`,
     n: 1,
-    size: '512x512',
+    size: "512x512",
   });
 
   return response;
